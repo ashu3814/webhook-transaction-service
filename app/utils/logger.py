@@ -1,6 +1,5 @@
 import logging
 import sys
-from pythonjsonlogger import jsonlogger
 
 # Suppress Celery warnings
 logging.getLogger('celery').setLevel(logging.WARNING)
