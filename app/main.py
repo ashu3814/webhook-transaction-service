@@ -28,12 +28,14 @@ app.include_router(transactions.router)
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info(f"Starting webhook service in {settings.API_ENV} mode")
+    logger.info(f"🚀 Webhook Service Started | env={settings.API_ENV}")
+    logger.info(f"📍 Running on {settings.API_HOST}:{settings.API_PORT}")
+    logger.info(f"🗄️  Database: PostgreSQL | 📨 Queue: CloudAMQP")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    logger.info("Shutting down webhook service")
+    logger.info("🛑 Webhook Service Stopped")
 
 
 if __name__ == "__main__":
