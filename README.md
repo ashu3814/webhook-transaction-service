@@ -97,7 +97,7 @@ reserved too far ahead of available worker slots.
 | FastAPI | HTTP API | Provides request validation, dependency injection, and generated OpenAPI documentation. |
 | PostgreSQL | Persistent database | Stores transactions durably and enforces unique transaction IDs with a primary key. |
 | SQLAlchemy | Database access | Maps transaction records to Python models and executes parameterized database operations. |
-| RabbitMQ | Message broker | Separates request handling from background processing and buffers queued work. |
+| CloudAMQP | Message broker | Separates request handling from background processing and buffers queued work. |
 | Celery | Task queue and worker | Runs processing outside the HTTP request, supports worker concurrency, and integrates with RabbitMQ. |
 | Pydantic | Request/response schemas | Validates incoming transaction fields and shapes API responses. |
 
@@ -109,7 +109,7 @@ settings from the environment or `.env`:
 | Variable | Purpose |
 | --- | --- |
 | `DATABASE_URL` | SQLAlchemy connection URL for the application PostgreSQL database. |
-| `RABBITMQ_URL` | RabbitMQ URL documented in the example environment; the current Celery app reads `CELERY_BROKER_URL` instead. |
+| `RABBITMQ_URL` | (Deprecated) Use `CELERY_BROKER_URL` instead. |
 | `CELERY_BROKER_URL` | RabbitMQ broker URL used by Celery to publish and receive tasks. |
 | `CELERY_RESULT_BACKEND` | Celery result-backend URL. Task results are currently ignored (`task_ignore_result=True`), so result records are not needed by the API. |
 | `API_HOST` | Host address used when starting the app with `python app/main.py`; defaults to `0.0.0.0`. |
@@ -416,6 +416,21 @@ For example, on a hosting provider that supports web and background workers:
    database with naive UTC timestamp columns.
 6. Deploy both services, then check `GET /`, submit a test webhook, and verify
    the worker logs and transaction status.
+
+### Railway deployment
+
+1. Sign up at [Railway](https://railway.app).
+2. Connect your GitHub account.
+3. Create a new project from this repository.
+4. Add two services:
+   - **Web Service** (FastAPI): Start command:
+     `python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Background Worker** (Celery): Start command: `python celery_worker.py`
+5. Set these environment variables in the Railway dashboard:
+   `DATABASE_URL`, `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`, `API_ENV`,
+   `API_HOST`, and `API_PORT`.
+6. Deploy and test the health endpoint:
+   `curl https://your-railway-url.up.railway.app/`
 
 The repository's Docker Compose file is for local PostgreSQL and RabbitMQ; it
 does not start the API or the Celery worker. The Dockerfile starts the API
